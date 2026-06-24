@@ -45,7 +45,7 @@ function RangeInput({
 
   return (
     <label className="control glass-control">
-      <div className="space-between">
+      <div className="control-row">
         <span>{label}</span>
         <span className="control-value">
           {value.toLocaleString()}
