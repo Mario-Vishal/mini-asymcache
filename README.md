@@ -12,7 +12,7 @@
 **Mini-AsymCache** is a visual, browser-based simulator for understanding KV-cache eviction tradeoffs in LLM serving.
 
 **Paper credit:** Multi-Segment Attention: Enabling Efficient KV-Cache Management for Faster Large Language Model Serving.  
-**Paper link:** https://arxiv.org/search/?query=Multi-Segment%20Attention%3A%20Enabling%20Efficient%20KV-Cache%20Management%20for%20Faster%20Large%20Language%20Model%20Serving&searchtype=title&abstracts=show&order=-announced_date_first&size=10
+**Paper link:** https://arxiv.org/abs/2606.02964
 
 ![Mini-AsymCache main page](images/main-page.png)
 
