@@ -52,7 +52,10 @@ export function generateRequests(
   workloadType: WorkloadType,
   numRequests: number,
   blockSizeTokens: number,
-  seed = 1
+  seed = 1,
+  avgPromptLength?: number,
+  avgOutputLength?: number,
+  avgReuse?: number
 ): Request[] {
   const rng = lcg(seed);
   const ranges = WORKLOAD_RANGES[workloadType];
@@ -71,11 +74,22 @@ export function generateRequests(
         promptLength = Math.round(12000 + rng() * (64000 - 12000));
       }
     } else {
-      promptLength = Math.round(ranges.promptMin + rng() * (ranges.promptMax - ranges.promptMin));
+      const basePrompt = avgPromptLength ?? (ranges.promptMin + ranges.promptMax) / 2;
+      const span = Math.max(300, Math.min(ranges.promptMax - ranges.promptMin, basePrompt * 0.45));
+      const lo = Math.max(ranges.promptMin, basePrompt - span);
+      const hi = Math.min(ranges.promptMax, basePrompt + span);
+      promptLength = Math.round(lo + rng() * (hi - lo));
     }
 
-    const outputLength = Math.round(ranges.outputMin + rng() * (ranges.outputMax - ranges.outputMin));
-    const reuseProbability = clamp(ranges.reuseRange[0] + rng() * (ranges.reuseRange[1] - ranges.reuseRange[0]), 0, 1);
+    const outputBase = avgOutputLength ?? (ranges.outputMin + ranges.outputMax) / 2;
+    const outputSpan = Math.max(32, Math.min(ranges.outputMax - ranges.outputMin, outputBase * 0.45));
+    const outputLo = Math.max(ranges.outputMin, outputBase - outputSpan);
+    const outputHi = Math.min(ranges.outputMax, outputBase + outputSpan);
+    const outputLength = Math.round(outputLo + rng() * (outputHi - outputLo));
+
+    const reuseMean = avgReuse ?? (ranges.reuseRange[0] + ranges.reuseRange[1]) / 2;
+    const jitter = rng() * 0.08;
+    const reuseProbability = clamp(Math.min(ranges.reuseRange[1], Math.max(ranges.reuseRange[0], reuseMean + (jitter - 0.04))), 0, 1);
     const accessPatternSeed = rng();
     const accessPattern: Request["accessPattern"] = accessPatternSeed < 0.33 ? "prefix-heavy" : accessPatternSeed < 0.66 ? "balanced" : "suffix-heavy";
 

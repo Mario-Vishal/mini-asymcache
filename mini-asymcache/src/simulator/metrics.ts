@@ -23,7 +23,7 @@ export function computePolicyResult(
     policyName: policyName as PolicyResult["policyName"],
     hitRate: totalHits / accesses,
     missRate: totalMisses / accesses,
-    evictions: Math.max(0, totalMisses - totalRequests * 0.15),
+    evictions: 0,
     recomputeTokens,
     recomputeCostMs,
     estimatedTTFTMs: totalTTFT / totalRequests,
