@@ -72,14 +72,29 @@ function deriveInsights(runs: SimulationOutput[]): string[] {
   ];
 }
 
-const getBarData = (runs: SimulationOutput[]) =>
-  runs.map((run) => ({
+const getBarData = (runs: SimulationOutput[]) => {
+  if (runs.length === 0) {
+    return [];
+  }
+
+  const bestLatency = Math.max(1, Math.min(...runs.map((run) => run.result.totalLatencyMs)));
+  const bestRecompute = Math.max(1, Math.min(...runs.map((run) => run.result.recomputeCostMs)));
+  const bestTpot = Math.max(1e-6, Math.min(...runs.map((run) => run.result.estimatedTPOTMs)));
+  const bestTtft = Math.max(1e-6, Math.min(...runs.map((run) => run.result.estimatedTTFTMs)));
+
+  return runs.map((run) => ({
     policy: run.policy.policyName,
     latency: Number(run.result.totalLatencyMs.toFixed(2)),
     hitRate: Number((run.result.hitRate * 100).toFixed(1)),
     recompute: Number(run.result.recomputeCostMs.toFixed(2)),
-    memory: Number(run.result.avgMemoryUtilization.toFixed(2))
+    memory: Number(run.result.avgMemoryUtilization.toFixed(2)),
+    latencyGap: Number((run.result.totalLatencyMs - bestLatency).toFixed(2)),
+    recomputeGap: Number((run.result.recomputeCostMs - bestRecompute).toFixed(2)),
+    tpotGap: Number((run.result.estimatedTPOTMs - bestTpot).toFixed(2)),
+    ttftGap: Number((run.result.estimatedTTFTMs - bestTtft).toFixed(2)),
+    latencyIndex: Number(((run.result.totalLatencyMs / bestLatency) * 100).toFixed(1))
   }));
+};
 
 function almostEqual(a: number, b: number, epsilon = 1e-6): boolean {
   return Math.abs(a - b) <= epsilon;
