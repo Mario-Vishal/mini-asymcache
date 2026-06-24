@@ -1,5 +1,6 @@
 import { WORKLOAD_PRESETS } from "../simulator/presets";
 import { PolicyName } from "../simulator/types";
+import type { CSSProperties } from "react";
 
 interface ControlState {
   workloadType: keyof typeof WORKLOAD_PRESETS;
@@ -40,13 +41,26 @@ function RangeInput({
   suffix: string;
   onChange: (value: number) => void;
 }) {
+  const pct = Math.round(((value - min) / (max - min)) * 100);
+
   return (
-    <label className="control">
-      <span>
-        {label}: {value}
-        {suffix}
-      </span>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={(evt) => onChange(Number(evt.target.value))} />
+    <label className="control glass-control">
+      <div className="space-between">
+        <span>{label}</span>
+        <span className="control-value">
+          {value.toLocaleString()}
+          {suffix}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(evt) => onChange(Number(evt.target.value))}
+        style={{ "--track-fill": `${pct}%` } as CSSProperties}
+      />
     </label>
   );
 }
@@ -56,9 +70,10 @@ export function ControlPanel({ controls, onChange, onRun, onReset }: Props) {
   const policyOptions: PolicyName[] = ["LRU", "LFU", "Position-aware", "Latency-aware"];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <h2 className="section-title">Simulation controls</h2>
-      <label className="control">
+
+      <label className="control glass-control">
         <span>Workload type</span>
         <select value={controls.workloadType} onChange={(evt) => onChange({ workloadType: evt.target.value as ControlState["workloadType"] })}>
           {workloadOptions.map((workload) => (
@@ -69,7 +84,7 @@ export function ControlPanel({ controls, onChange, onRun, onReset }: Props) {
         </select>
       </label>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <RangeInput
           label="Requests"
           min={8}
@@ -84,7 +99,7 @@ export function ControlPanel({ controls, onChange, onRun, onReset }: Props) {
           max={1200}
           value={controls.capacityMb}
           onChange={(value) => onChange({ capacityMb: value })}
-          suffix="MB"
+          suffix=" MB"
         />
         <RangeInput
           label="Block size"
@@ -92,7 +107,7 @@ export function ControlPanel({ controls, onChange, onRun, onReset }: Props) {
           max={1024}
           value={controls.blockSizeTokens}
           onChange={(value) => onChange({ blockSizeTokens: value })}
-          suffix="tokens"
+          suffix=" tokens"
         />
         <RangeInput
           label="Reuse probability"
@@ -111,7 +126,7 @@ export function ControlPanel({ controls, onChange, onRun, onReset }: Props) {
           max={20000}
           value={controls.avgPromptLength}
           onChange={(value) => onChange({ avgPromptLength: value })}
-          suffix="tok"
+          suffix=" tok"
         />
         <RangeInput
           label="Average output"
@@ -119,11 +134,11 @@ export function ControlPanel({ controls, onChange, onRun, onReset }: Props) {
           max={1024}
           value={controls.avgOutputLength}
           onChange={(value) => onChange({ avgOutputLength: value })}
-          suffix="tok"
+          suffix=" tok"
         />
       </div>
 
-      <label className="control">
+      <label className="control glass-control">
         <span>Eviction policy</span>
         <select value={controls.selectedPolicy} onChange={(evt) => onChange({ selectedPolicy: evt.target.value as PolicyName })}>
           {policyOptions.map((policy) => (
@@ -134,12 +149,21 @@ export function ControlPanel({ controls, onChange, onRun, onReset }: Props) {
         </select>
       </label>
 
-      <div className="mt-2 text-xs text-slate-300">Latency-aware weights</div>
-      <div className="grid grid-cols-2 gap-3">
-        <RangeInput label="alpha (recency)" min={0} max={2} step={0.05} value={controls.alpha} onChange={(v) => onChange({ alpha: v })} />
-        <RangeInput label="beta (frequency)" min={0} max={2} step={0.05} value={controls.beta} onChange={(v) => onChange({ beta: v })} />
-        <RangeInput label="gamma (recompute)" min={0} max={2} step={0.05} value={controls.gamma} onChange={(v) => onChange({ gamma: v })} />
-        <RangeInput label="delta (position)" min={0} max={2} step={0.05} value={controls.delta} onChange={(v) => onChange({ delta: v })} />
+      <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+        <div className="text-xs uppercase tracking-wide text-slate-300">Latency-aware weights</div>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <RangeInput label="alpha (recency)" min={0} max={2} step={0.05} value={controls.alpha} onChange={(v) => onChange({ alpha: v })} />
+          <RangeInput label="beta (frequency)" min={0} max={2} step={0.05} value={controls.beta} onChange={(v) => onChange({ beta: v })} />
+          <RangeInput label="gamma (recompute)" min={0} max={2} step={0.05} value={controls.gamma} onChange={(v) => onChange({ gamma: v })} />
+          <RangeInput
+            label="delta (position)"
+            min={0}
+            max={2}
+            step={0.05}
+            value={controls.delta}
+            onChange={(v) => onChange({ delta: v })}
+          />
+        </div>
       </div>
 
       <div className="mt-2 flex flex-wrap gap-2">

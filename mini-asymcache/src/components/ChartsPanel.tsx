@@ -23,7 +23,7 @@ export function ChartsPanel({
 }) {
   return (
     <div className="space-y-6">
-      <div className="h-72">
+      <div className="chart-shell">
         <h3 className="mb-2 text-xs uppercase tracking-wide text-slate-300">Total latency by policy</h3>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={comparisonData}>
@@ -32,13 +32,13 @@ export function ChartsPanel({
             <YAxis stroke="#97a6c7" />
             <Tooltip />
             <Legend />
-            <Bar dataKey="latency" fill="#4e93ff" />
+            <Bar dataKey="latency" fill="#4e93ff" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="h-64">
+        <div className="chart-shell h-64">
           <h3 className="mb-2 text-xs uppercase tracking-wide text-slate-300">Hit rate by policy</h3>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={comparisonData}>
@@ -46,11 +46,11 @@ export function ChartsPanel({
               <XAxis dataKey="policy" stroke="#97a6c7" />
               <YAxis stroke="#97a6c7" />
               <Tooltip />
-              <Bar dataKey="hitRate" fill="#55f6d9" />
+              <Bar dataKey="hitRate" fill="#55f6d9" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="h-64">
+        <div className="chart-shell h-64">
           <h3 className="mb-2 text-xs uppercase tracking-wide text-slate-300">Recompute cost by policy</h3>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={comparisonData}>
@@ -58,14 +58,14 @@ export function ChartsPanel({
               <XAxis dataKey="policy" stroke="#97a6c7" />
               <YAxis stroke="#97a6c7" />
               <Tooltip />
-              <Bar dataKey="recompute" fill="#ffbf5f" />
+              <Bar dataKey="recompute" fill="#ffbf5f" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="h-72">
+        <div className="chart-shell h-72">
           <h3 className="mb-2 text-xs uppercase tracking-wide text-slate-300">Memory usage over time</h3>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={memoryTimeline}>
@@ -73,11 +73,11 @@ export function ChartsPanel({
               <XAxis dataKey="name" stroke="#97a6c7" />
               <YAxis stroke="#97a6c7" />
               <Tooltip />
-              <Line type="monotone" dataKey="memory" stroke="#4e93ff" strokeWidth={2} />
+              <Line type="monotone" dataKey="memory" stroke="#4e93ff" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <div className="h-72">
+        <div className="chart-shell h-72">
           <h3 className="mb-2 text-xs uppercase tracking-wide text-slate-300">Latency vs hit rate</h3>
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart>

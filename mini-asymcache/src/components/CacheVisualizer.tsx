@@ -23,20 +23,27 @@ export function CacheVisualizer({
 }) {
   const totalMemory = blocks.reduce((sum, block) => sum + block.sizeMb, 0);
   const ratio = capacityMb > 0 ? Math.min(1, totalMemory / capacityMb) : 0;
+  const pressureLevel = ratio > 0.9 ? "High" : ratio > 0.7 ? "Elevated" : "Healthy";
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-        <p className="mb-2 text-sm text-slate-200">GPU memory usage</p>
-        <div className="h-4 w-full overflow-hidden rounded-full bg-black/30">
+      <div className="rounded-2xl border border-white/12 bg-black/20 p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-slate-200">GPU memory usage</p>
+            <p className="mt-1 text-[11px] text-slate-400">Status: {pressureLevel}</p>
+          </div>
+          <div className="text-xs font-semibold text-slate-200">{Math.round(ratio * 100)}%</div>
+        </div>
+        <div className="mt-2 h-4 w-full overflow-hidden rounded-full bg-black/30">
           <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-blue-600"
+            className="h-full rounded-full bg-gradient-to-r from-cyan-300 via-blue-400 to-indigo-500"
             initial={{ width: "0%" }}
             animate={{ width: `${Math.round(ratio * 100)}%` }}
             transition={{ duration: 0.6 }}
           />
         </div>
-        <p className="mt-1 text-xs text-slate-300">
+        <p className="mt-2 text-xs text-slate-300">
           {totalMemory.toFixed(2)} MB used of {capacityMb} MB
         </p>
       </div>
@@ -46,9 +53,9 @@ export function CacheVisualizer({
           {blocks.map((block) => (
             <motion.div
               key={block.blockId}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, y: 8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
               className={`rounded-xl border border-white/10 bg-gradient-to-br p-3 ${statusClass[block.status]}`}
             >
               <div className="text-xs font-medium text-slate-900">Request {block.requestId}</div>
@@ -65,11 +72,11 @@ export function CacheVisualizer({
         </AnimatePresence>
       </div>
 
-      <div className="grid gap-2 rounded-xl border border-white/10 bg-black/20 p-4 text-xs md:grid-cols-2">
-        <p>Hit: recent reuse confirmed</p>
-        <p>Miss: block not in cache</p>
-        <p>Recomputed: missing block replayed</p>
-        <p>Evicted: removed to fit memory pressure</p>
+      <div className="grid gap-2 rounded-2xl border border-white/10 bg-black/20 p-4 text-xs text-slate-200 md:grid-cols-2">
+        <p>? Hit: segment was already in cache</p>
+        <p>?? Miss: block not in cache</p>
+        <p>?? Recompute: miss caused recomputation</p>
+        <p>?? Eviction: block removed for capacity pressure</p>
         <p className="md:col-span-2 text-amber-300">Total evictions: {totalEvictions}</p>
       </div>
 

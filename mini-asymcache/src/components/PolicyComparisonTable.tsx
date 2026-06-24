@@ -20,45 +20,45 @@ export function PolicyComparisonTable({ runs }: Props) {
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full text-sm">
+    <div className="overflow-x-auto rounded-xl border border-white/10">
+      <table className="policy-table min-w-full text-sm">
         <thead>
-          <tr className="text-left text-slate-200">
-            <th className="p-2">Policy</th>
-            <th className="p-2">Hit Rate</th>
-            <th className="p-2">Miss Rate</th>
-            <th className="p-2">Evictions</th>
-            <th className="p-2">Recompute Cost</th>
-            <th className="p-2">Estimated TTFT</th>
-            <th className="p-2">Estimated TPOT</th>
-            <th className="p-2">Total Latency</th>
-            <th className="p-2">Memory Utilization</th>
+          <tr>
+            <th>Policy</th>
+            <th>Hit Rate</th>
+            <th>Miss Rate</th>
+            <th>Evictions</th>
+            <th>Recompute Cost</th>
+            <th>Estimated TTFT</th>
+            <th>Estimated TPOT</th>
+            <th>Total Latency</th>
+            <th>Memory Utilization</th>
           </tr>
         </thead>
         <tbody>
           {runs.map((run) => (
-            <tr key={run.policy.policyName} className="border-t border-white/10">
-              <td className="p-2 font-medium text-white">{run.policy.policyName}</td>
-              <td className={`p-2 ${run.result.hitRate === bestBy.hitRate ? "font-bold text-emerald-300" : ""}`}>
+            <tr key={run.policy.policyName}>
+              <td className="font-medium text-white">{run.policy.policyName}</td>
+              <td className={`${run.result.hitRate === bestBy.hitRate ? "font-semibold text-emerald-300" : ""}`}>
                 {(run.result.hitRate * 100).toFixed(1)}%
               </td>
-              <td className={`p-2 ${run.result.missRate === bestBy.miss ? "font-bold text-cyan-300" : ""}`}>
+              <td className={`${run.result.missRate === bestBy.miss ? "font-semibold text-cyan-300" : ""}`}>
                 {(run.result.missRate * 100).toFixed(1)}%
               </td>
-              <td className="p-2 text-right">{run.result.evictions}</td>
-              <td className={`p-2 ${run.result.recomputeCostMs === bestBy.recompute ? "font-bold text-amber-300" : ""}`}>
+              <td>{run.result.evictions}</td>
+              <td className={`${run.result.recomputeCostMs === bestBy.recompute ? "font-semibold text-amber-300" : ""}`}>
                 {run.result.recomputeCostMs.toFixed(2)} ms
               </td>
-              <td className={`p-2 ${run.result.estimatedTTFTMs === bestBy.ttft ? "font-bold text-fuchsia-300" : ""}`}>
+              <td className={`${run.result.estimatedTTFTMs === bestBy.ttft ? "font-semibold text-fuchsia-300" : ""}`}>
                 {run.result.estimatedTTFTMs.toFixed(2)} ms
               </td>
-              <td className={`p-2 ${run.result.estimatedTPOTMs === bestBy.tpot ? "font-bold text-blue-300" : ""}`}>
+              <td className={`${run.result.estimatedTPOTMs === bestBy.tpot ? "font-semibold text-blue-300" : ""}`}>
                 {run.result.estimatedTPOTMs.toFixed(2)} ms
               </td>
-              <td className={`p-2 ${run.result.totalLatencyMs === bestBy.latency ? "font-bold text-emerald-300" : ""}`}>
+              <td className={`${run.result.totalLatencyMs === bestBy.latency ? "font-semibold text-emerald-300" : ""}`}>
                 {run.result.totalLatencyMs.toFixed(2)} ms
               </td>
-              <td className={`p-2 ${run.result.avgMemoryUtilization === bestBy.mem ? "font-bold text-fuchsia-300" : ""}`}>
+              <td className={`${run.result.avgMemoryUtilization === bestBy.mem ? "font-semibold text-fuchsia-300" : ""}`}>
                 {run.result.avgMemoryUtilization.toFixed(2)} MB
               </td>
             </tr>
