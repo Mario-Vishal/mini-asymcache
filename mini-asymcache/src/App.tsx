@@ -59,6 +59,7 @@ function deriveInsights(runs: SimulationOutput[]): string[] {
   const leastRecompute = runs.reduce((best, current) => (current.result.recomputeCostMs < best.result.recomputeCostMs ? current : best));
   const highestHit = runs.reduce((best, current) => (current.result.hitRate > best.result.hitRate ? current : best));
   const tpotSpread = Math.max(...runs.map((run) => run.result.estimatedTPOTMs)) - Math.min(...runs.map((run) => run.result.estimatedTPOTMs));
+  const ttftSpread = Math.max(...runs.map((run) => run.result.estimatedTTFTMs)) - Math.min(...runs.map((run) => run.result.estimatedTTFTMs));
 
   return [
     `${fastest.policy.policyName} reached the lowest total latency in this run.`,
@@ -66,7 +67,7 @@ function deriveInsights(runs: SimulationOutput[]): string[] {
       fastest.policy.policyName === highestHit.policy.policyName ? "also" : "not always"
     } this was the fastest policy.`,
     `${leastRecompute.policy.policyName} reduced recompute cost the most.`,
-    `TTFT spread was ${(Math.max(...runs.map((run) => run.result.estimatedTTFTMs)) - Math.min(...runs.map((run) => run.result.estimatedTTFTMs)).toFixed(1)} ms.`,
+    `TTFT spread was ${ttftSpread.toFixed(1)} ms.`,
     `TPOT spread was ${(tpotSpread).toFixed(2)} ms/token.`
   ];
 }
