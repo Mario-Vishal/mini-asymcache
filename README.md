@@ -1,5 +1,13 @@
 # Mini-AsymCache
 
+![Mini-AsymCache main page](images/main-page.png)
+
+![Policy comparison table](images/table.png)
+
+![Performance charts](images/charts.png)
+
+![Cache visualizer](images/cache-visualizer.png)
+
 **Mini-AsymCache** is a visual, browser-based simulator for understanding how KV-cache eviction decisions affect LLM serving latency.
 
 It is inspired by the paper **“Multi-Segment Attention: Enabling Efficient KV-Cache Management for Faster Large Language Model Serving”**, which introduces AsymCache as a computation-latency-aware KV-cache management system.
