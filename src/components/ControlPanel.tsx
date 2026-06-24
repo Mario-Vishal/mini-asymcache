@@ -22,6 +22,7 @@ interface Props {
   onChange: (changes: Partial<ControlState>) => void;
   onRun: () => void;
   onReset: () => void;
+  onStressPreset: () => void;
 }
 
 function RangeInput({
@@ -65,7 +66,7 @@ function RangeInput({
   );
 }
 
-export function ControlPanel({ controls, onChange, onRun, onReset }: Props) {
+export function ControlPanel({ controls, onChange, onRun, onReset, onStressPreset }: Props) {
   const workloadOptions = Object.keys(WORKLOAD_PRESETS) as Array<keyof typeof WORKLOAD_PRESETS>;
   const policyOptions: PolicyName[] = ["LRU", "LFU", "Position-aware", "Latency-aware"];
 
@@ -172,6 +173,9 @@ export function ControlPanel({ controls, onChange, onRun, onReset }: Props) {
         </button>
         <button type="button" className="btn" onClick={onReset}>
           Reset
+        </button>
+        <button type="button" className="btn" onClick={onStressPreset}>
+          Pressure stress preset
         </button>
       </div>
     </div>

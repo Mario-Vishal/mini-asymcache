@@ -81,38 +81,69 @@ const getBarData = (runs: SimulationOutput[]) =>
     memory: Number(run.result.avgMemoryUtilization.toFixed(2))
   }));
 
+function almostEqual(a: number, b: number, epsilon = 1e-6): boolean {
+  return Math.abs(a - b) <= epsilon;
+}
+
 function App() {
   const [controls, setControls] = useState<ControlState>(defaultControls);
   const [runState, setRunState] = useState<RunState | null>(null);
 
   const handleControlChange = (changes: Partial<ControlState>) => setControls((prev) => ({ ...prev, ...changes }));
 
-  const handleRunSimulation = () => {
-    const preset = WORKLOAD_PRESETS[controls.workloadType];
+  const runSimulation = (simulationControls: ControlState) => {
+    const preset = WORKLOAD_PRESETS[simulationControls.workloadType];
     const requests = generateRequests(
-      controls.workloadType,
-      controls.numRequests,
-      controls.blockSizeTokens,
+      simulationControls.workloadType,
+      simulationControls.numRequests,
+      simulationControls.blockSizeTokens,
       BASE_ENGINE_CONFIG.seed,
-      controls.avgPromptLength || preset.avgPromptLength,
-      controls.avgOutputLength || preset.avgOutputLength,
-      controls.reuseProbability / 100
+      simulationControls.avgPromptLength || preset.avgPromptLength,
+      simulationControls.avgOutputLength || preset.avgOutputLength,
+      simulationControls.reuseProbability / 100
     );
 
     const outputs = POLICY_PRESETS.map((p) => {
-      const policy = p.policyName === controls.selectedPolicy ? { ...p, alpha: controls.alpha, beta: controls.beta, gamma: controls.gamma, delta: controls.delta } : p;
+      const policy = p.policyName === simulationControls.selectedPolicy
+        ? { ...p, alpha: simulationControls.alpha, beta: simulationControls.beta, gamma: simulationControls.gamma, delta: simulationControls.delta }
+        : p;
       return runSinglePolicy({
         policy,
         requests,
         config: {
           ...BASE_ENGINE_CONFIG,
-          capacityMb: controls.capacityMb,
-          blockSizeTokens: controls.blockSizeTokens
+          capacityMb: simulationControls.capacityMb,
+          blockSizeTokens: simulationControls.blockSizeTokens
         }
       });
     });
 
-    setRunState({ outputs, policy: controls.selectedPolicy });
+    setRunState({ outputs, policy: simulationControls.selectedPolicy });
+  };
+
+  const handleRunSimulation = () => {
+    runSimulation(controls);
+  };
+
+  const handleRunStressPreset = () => {
+    const stressedControls: ControlState = {
+      ...controls,
+      workloadType: "Mixed Production",
+      numRequests: 96,
+      capacityMb: 64,
+      blockSizeTokens: 64,
+      avgPromptLength: 5600,
+      avgOutputLength: 420,
+      reuseProbability: 12,
+      selectedPolicy: "Latency-aware",
+      alpha: 1,
+      beta: 0.7,
+      gamma: 1.2,
+      delta: 1
+    };
+
+    setControls(stressedControls);
+    runSimulation(stressedControls);
   };
 
   const handleReset = () => {
@@ -146,6 +177,26 @@ function App() {
   }, [selectedRun]);
 
   const comparisonData = useMemo(() => getBarData(outputs), [outputs]);
+  const policyComparisonIsFlat = useMemo(() => {
+    if (outputs.length <= 1) {
+      return false;
+    }
+
+    const base = outputs[0].result;
+    return !outputs.slice(1).some((run) => {
+      const result = run.result;
+      return (
+        !almostEqual(result.hitRate, base.hitRate) ||
+        !almostEqual(result.missRate, base.missRate) ||
+        !almostEqual(result.totalLatencyMs, base.totalLatencyMs, 1e-4) ||
+        !almostEqual(result.estimatedTTFTMs, base.estimatedTTFTMs, 1e-4) ||
+        !almostEqual(result.estimatedTPOTMs, base.estimatedTPOTMs, 1e-4) ||
+        !almostEqual(result.recomputeCostMs, base.recomputeCostMs, 1e-4) ||
+        !almostEqual(result.avgMemoryUtilization, base.avgMemoryUtilization, 1e-6) ||
+        !almostEqual(result.evictions, base.evictions, 1e-6)
+      );
+    });
+  }, [outputs]);
   const insights = useMemo(() => deriveInsights(outputs), [outputs]);
 
   return (
@@ -168,7 +219,13 @@ function App() {
 
         <div className="grid gap-4 xl:grid-cols-[360px_1fr]">
           <motion.section initial={{ x: -16, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="card glass">
-            <ControlPanel controls={controls} onChange={handleControlChange} onRun={handleRunSimulation} onReset={handleReset} />
+            <ControlPanel
+              controls={controls}
+              onChange={handleControlChange}
+              onRun={handleRunSimulation}
+              onReset={handleReset}
+              onStressPreset={handleRunStressPreset}
+            />
           </motion.section>
 
           <section className="space-y-4">
@@ -203,6 +260,13 @@ function App() {
 
             <motion.section initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="card glass">
               <h2 className="section-title">Policy Comparison</h2>
+              {policyComparisonIsFlat ? (
+                <div className="mb-3 rounded-lg border border-amber-300/35 bg-amber-300/10 px-3 py-2 text-xs text-amber-100 sm:text-sm">
+                  All policies are currently identical because the run is not under enough cache pressure.
+                  <br />
+                  Try the pressure preset above or reduce capacity / increase requests to expose eviction differences.
+                </div>
+              ) : null}
               <PolicyComparisonTable runs={outputs} />
             </motion.section>
 
