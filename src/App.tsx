@@ -119,7 +119,7 @@ function App() {
     );
 
     const outputs = POLICY_PRESETS.map((p) => {
-      const policy = p.policyName === simulationControls.selectedPolicy
+      const policy = p.policyName === "Latency-aware"
         ? { ...p, alpha: simulationControls.alpha, beta: simulationControls.beta, gamma: simulationControls.gamma, delta: simulationControls.delta }
         : p;
       return runSinglePolicy({
@@ -277,9 +277,9 @@ function App() {
               <h2 className="section-title">Policy Comparison</h2>
               {policyComparisonIsFlat ? (
                 <div className="mb-3 rounded-lg border border-amber-300/35 bg-amber-300/10 px-3 py-2 text-xs text-amber-100 sm:text-sm">
-                  All policies are currently identical because the run is not under enough cache pressure.
+                  All policies are currently identical because the run is not under enough cache pressure (or the difference is too small to detect).
                   <br />
-                  Try the pressure preset above or reduce capacity / increase requests to expose eviction differences.
+                  The latency-aware sliders only change eviction behavior when evictions occur. Try the pressure preset above or reduce capacity / increase requests to expose differences.
                 </div>
               ) : null}
               <PolicyComparisonTable runs={outputs} />
